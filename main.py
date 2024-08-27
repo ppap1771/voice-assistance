@@ -1,5 +1,8 @@
-import os, sys
-
+import os, sys, datetime
+from utils.audio_in import record_audio
+from utils.speech2text import textgen
+from utils.llm import get_response
+from utils.text2speech import audiogen
 
 """
     1. RUN: audio_in
@@ -12,5 +15,32 @@ import os, sys
 """
 
 class Runner:
-    def __init__(self, audio_in: str):
-        self.audio_in = audio_in
+    def __init__(self):
+        pass
+
+    def play(audio_path) -> None:
+        """
+        code to play .wav file given as arg
+        """
+        os.system(f"aplay {audio_path}")
+
+    def run(self):
+        path = record_audio()
+        text = textgen(path)
+        response = get_response(text)
+        out = audiogen(response)
+        self.play(out)
+
+        # additionally remove the contents of data and store a log file for output.
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(f'./logs/log_{timestamp}.txt', 'a') as f:
+            f.write(f"{timestamp} - Processed audio: {path}\n")
+            f.write(f"Generated output = {response}")
+            f.write(f"{timestamp} - Generated speech: {out}\n")
+
+        os.remove(path)
+        os.remove(out)
+
+if __name__ == "__main__":
+    runner = Runner()
+    runner.run()

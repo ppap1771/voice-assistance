@@ -51,5 +51,4 @@ def record_audio(filename, channels=1, rate=22050, chunk=1024) -> str:
 
 if __name__ == "__main__":
     filename = "./data/output.wav"  # Output file name
-
     record_audio(filename)

@@ -10,7 +10,7 @@ def textgen(audio_path: str) -> list:
     # or run on CPU with INT8
     model = WhisperModel(model_size, device="cpu", compute_type="int8")
 
-    segments, info = model.transcribe(audio_path, beam_size=5)
+    segments, info = model.transcribe(audio_path, beam_size=5, vad_filter=True)
 
     print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
     out = []
