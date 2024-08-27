@@ -1,30 +1,21 @@
 import re
 from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
 from transformers import pipeline
+import transformers
+import torch
 
 def get_response(query):
-    gpu_llm = HuggingFacePipeline.from_model_id(
-        model_id="distilgpt2",  # Using a smaller model for testing
-        task="text-generation",
-        device=-1,  # -1 for CPU
-        batch_size=1,  # Adjust based on resources
-        model_kwargs={"temperature": 0.7, "max_length": 64, "do_sample": True},
-    )
+    torch.set_default_device("cpu")
 
-    gpu_chain = gpu_llm.bind(stop=["\n\n"])
+    model = transformers.AutoModelForCausalLM.from_pretrained("microsoft/Phi-3-mini-4k-instruct", trust_remote_code=True)
+    tokenizer = transformers.AutoTokenizer.from_pretrained("microsoft/Phi-3-mini-4k-instruct", trust_remote_code=True)
 
-    questions = [query]
-    answers = gpu_chain.batch(questions)
+    inputs = tokenizer(query, return_tensors="pt", return_attention_mask=False)
 
-    # Try to extract a numeric answer
-    for answer in answers:
-        print(f"Raw response: {answer}")
-        numbers = re.findall(r'\b\d+\b', answer)
-        if numbers:
-            print(f"Extracted number: {numbers[0]}")
-        else:
-            print("No numeric answer found.")
+    outputs = model.generate(**inputs, max_length=200)
+    text = tokenizer.batch_decode(outputs)
+    return text
 
 if __name__ == "__main__":
-    query = "What is 10+10?"
-    get_response(query)
+    # query = "What is 10+10?"
+    out = get_response("10+10 = ?")
