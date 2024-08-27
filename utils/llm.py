@@ -1,5 +1,4 @@
 import re
-from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
 from transformers import pipeline
 import transformers
 import torch
